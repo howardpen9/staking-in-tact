@@ -4,18 +4,16 @@ import { printSeparator } from "./utils/print";
 // Contract Abi //
 import { buildOnchainMetadata } from "./utils/jetton-helpers";
 import { mnemonicToPrivateKey } from "ton-crypto";
-
-import { StakingContract } from "./output/SampleJetton_StakingContract";
-// import { Launchpad } from "./output/SampleJetton_Launchpad";
-// import { Round } from "./output/SampleJetton_Round";
-
 import * as dotenv from "dotenv";
 dotenv.config();
+
+import { StakingContract } from "./output/SampleJetton_StakingContract";
 
 (async () => {
     //create client for testnet sandboxv4 API - alternative endpoint
     const client = new TonClient4({
         endpoint: "https://sandbox-v4.tonhubapi.com",
+        // endpoint: "https://testnet-http-api.doge.tg",
     });
 
     let mnemonics = (process.env.mnemonics || "").toString(); // 🔴 Change to your own
@@ -25,7 +23,8 @@ dotenv.config();
     let deploy_wallet_contract = client.open(deploy_wallet);
     console.log("Deployer Wallet Address:  " + deploy_wallet.address);
 
-    let jettonMaster = Address.parse("JETTON TOKEN ROOT"); // 🔴 Jetton Root, the token Address you want to support
+    // let jettonMaster = Address.parse("JETTON TOKEN ROOT"); // 🔴 Jetton Root, the token Address you want to support
+    let jettonMaster = Address.parse("EQB0EN3UlNiAEj18cN7qs7rF4rvLKtQ2-bkjMZN4w5A13lXA");
     let staking_init = await StakingContract.init(jettonMaster, deploy_wallet_contract.address, 15000n);
     let stakingContract_address = contractAddress(workchain, staking_init);
 

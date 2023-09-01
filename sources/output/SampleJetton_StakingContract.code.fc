@@ -22,7 +22,7 @@
 
 ((slice, slice, int, cell, cell, int, int, int), int) $StakingContract$_fun_score_function((slice, slice, int, cell, cell, int, int, int) $self, int $jjj_amount) impure inline_ref {
     var (($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter)) = $self;
-    return (($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter), ((($jjj_amount * 1000000000000000000) / (now() - $self'start_time)) * ($self'parameter / 1000)));
+    return (($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter), ((($jjj_amount * 1000000000000000000) / now()) - (($self'start_time * $self'parameter) / 1000)));
 }
 
 ((slice, slice, int, cell, cell, int, int, int), int) $StakingContract$_fun_get_ratio_of_stake((slice, slice, int, cell, cell, int, int, int) $self, int $StakeTokenAmount) impure inline_ref {
@@ -76,11 +76,11 @@
     throw_unless(17054, ( __tact_slice_eq_bits($self'this_contract_jettonWallet, $ctx'sender) ));
     int $score = ($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter)~$StakingContract$_fun_score_function($stake'amount);
     $self'stake_record~__tact_dict_set_int_cell(257, $self'index, $StakeRecord$_store_cell($StakeRecord$_constructor_stake_address_jjj_stake_amount_score($stake'from, $stake'amount, $score)));
-    int $previous_score = __tact_dict_get_slice_int($self'score_list, 267, $stake'from, 257);
+    int $previous_score = __tact_not_null(__tact_dict_get_slice_int($self'score_list, 267, $stake'from, 257));
     if (null?($previous_score)) {
         $self'score_list~__tact_dict_set_slice_int(267, $stake'from, $score, 257);
-    } elseif ((__tact_not_null($previous_score) >= 0)) {
-        $previous_score = (__tact_not_null($previous_score) + $score);
+    } elseif (($previous_score >= 0)) {
+        $previous_score = ($previous_score + $score);
         $self'score_list~__tact_dict_set_slice_int(267, $stake'from, $previous_score, 257);
     }
     $global_emit($TransferEvent$_store_cell($TransferEvent$_constructor_sender_address_jetton_amount_score($stake'from, $stake'amount, $score)));
@@ -170,7 +170,7 @@ _ supported_interfaces() method_id {
 }
 
 _ get_abi_ipfs() method_id {
-    return "ipfs://QmQZqdUe9SocmVPQF2tvmESQ39Wv7goK3ezM3ZBuWYZ8Qu";
+    return "ipfs://Qma2aq2293ErGLaCZSbJ8P6zitjpXd78xBQc9vvGycKX5b";
 }
 
 _ lazy_deployment_completed() method_id {
@@ -202,7 +202,7 @@ _ lazy_deployment_completed() method_id {
     }
     
     ;; Receive TokenNotification message
-    if (op == 1935855772) {
+    if (op == 2905361094) {
         var msg = in_msg~$TokenNotification$_load();
         self~$StakingContract$_internal_binary_TokenNotification(msg);
         return (self, true);
