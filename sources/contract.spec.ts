@@ -2,16 +2,14 @@ import { toNano, Address, JettonMaster } from "ton";
 import { ContractSystem } from "@tact-lang/emulator";
 
 import { StakingContract } from "./output/SampleJetton_StakingContract";
-import { Launchpad } from "./output/SampleJetton_Launchpad";
-import { Round } from "./output/SampleJetton_Round";
 
 describe("==== contract Testing ====", () => {
     it("should deploy correctly", async () => {
         // Create ContractSystem and deploy contract
         let system = await ContractSystem.create();
         let owner = system.treasure("owner");
-
         let nonOwner = system.treasure("non-owner");
+
         // let jettonMaster = system.open(await JettonMaster())
         let contract = system.open(await StakingContract.fromInit(nonOwner.address, owner.address, 15000n));
         console.log("StakingAddress:" + contract.address);

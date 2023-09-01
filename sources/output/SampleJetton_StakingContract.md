@@ -1,6 +1,6 @@
 # TACT Compilation Report
 Contract: StakingContract
-BOC Size: 2132 bytes
+BOC Size: 2127 bytes
 
 # Types
 Total Types: 13
@@ -18,11 +18,11 @@ TLB: `_ bounce:bool to:address value:int257 mode:int257 body:Maybe ^cell code:Ma
 Signature: `SendParameters{bounce:bool,to:address,value:int257,mode:int257,body:Maybe ^cell,code:Maybe ^cell,data:Maybe ^cell}`
 
 ## TokenTransfer
-TLB: `token_transfer#0f8a7ea5 queryId:uint64 amount:coins destination:address response_destination:address custom_payload:Maybe ^cell forward_ton_amount:coins forward_payload:remainder<slice> = TokenTransfer`
+TLB: `token_transfer#e54bcffe queryId:uint64 amount:coins destination:address response_destination:address custom_payload:Maybe ^cell forward_ton_amount:coins forward_payload:remainder<slice> = TokenTransfer`
 Signature: `TokenTransfer{queryId:uint64,amount:coins,destination:address,response_destination:address,custom_payload:Maybe ^cell,forward_ton_amount:coins,forward_payload:remainder<slice>}`
 
 ## TokenNotification
-TLB: `token_notification#7362d09c queryId:uint64 amount:coins from:address forward_payload:remainder<slice> = TokenNotification`
+TLB: `token_notification#ad2c4ac6 queryId:uint64 amount:coins from:address forward_payload:remainder<slice> = TokenNotification`
 Signature: `TokenNotification{queryId:uint64,amount:coins,from:address,forward_payload:remainder<slice>}`
 
 ## TransferEvent

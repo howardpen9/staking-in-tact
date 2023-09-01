@@ -26,21 +26,21 @@ dotenv.config();
     let keyPair = await mnemonicToPrivateKey(mnemonics.split(" "));
     let secretKey = keyPair.secretKey;
     let workchain = 0; //we are working in basechain.
-
     let deployer_wallet = WalletContractV4.create({ workchain, publicKey: keyPair.publicKey });
     let deployer_wallet_contract = client4.open(deployer_wallet);
 
-    let jettonMaster = Address.parse("JETTON TOKEN ROOT"); // 🔴 Jetton Root, the token Address you want to support
-    let staking_init = await StakingContract.init(jettonMaster, deployer_wallet.address, 15000n);
-    let stakingContract_address = contractAddress(workchain, staking_init);
+    // let jettonMaster_address = Address.parse("JETTON TOKEN ROOT"); // 🔴 Jetton Root, the token Address you want to support
+    let jettonMaster_address = Address.parse("EQB0EN3UlNiAEj18cN7qs7rF4rvLKtQ2-bkjMZN4w5A13lXA");
 
+    let staking_init = await StakingContract.init(jettonMaster_address, deployer_wallet.address, 15000n);
+    let stakingContract_address = contractAddress(workchain, staking_init);
     let packed_stake = beginCell().storeUint(300, 64).endCell();
     let packed = beginCell()
         .store(
             storeTokenTransfer({
                 $$type: "TokenTransfer",
                 queryId: 0n,
-                amount: toNano("200"),
+                amount: toNano("13.333333"), // using toNano to convert to human readable unit
                 destination: stakingContract_address,
                 response_destination: deployer_wallet_contract.address, // Original Owner, aka. First Minter's Jetton Wallet
                 custom_payload: null,
@@ -54,7 +54,7 @@ dotenv.config();
     let seqno: number = await deployer_wallet_contract.getSeqno();
     let balance: bigint = await deployer_wallet_contract.getBalance();
 
-    let client_for_jetton = client4.open(await new JettonMaster(jettonMaster));
+    let client_for_jetton = client4.open(await new JettonMaster(jettonMaster_address));
     let deployer_jetton_wallet = await client_for_jetton.getWalletAddress(deployer_wallet.address);
     console.log("🛠️ Calling To Deployer's JettonWallet:\n" + deployer_jetton_wallet + "\n");
 

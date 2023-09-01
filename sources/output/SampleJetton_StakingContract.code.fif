@@ -174,7 +174,7 @@ PROGRAM{
     SDEQ
   }>
   $TokenTransfer$_store PROCREF:<{
-    260734629 PUSHINT
+    3846950910 PUSHINT
     s0 s8 XCHG2
     32 STU
     s1 s6 XCHG
@@ -212,7 +212,7 @@ PROGRAM{
   $TokenNotification$_load PROCINLINE:<{
     32 LDU
     SWAP
-    1935855772 PUSHINT
+    2905361094 PUSHINT
     EQUAL
     129 THROWIFNOT
     64 LDU
@@ -546,13 +546,12 @@ PROGRAM{
     1000000000000000000 PUSHINT
     MUL
     NOW
-    s4 PUSH
-    SUB
     DIV
-    OVER
+    s3 s1 PUSH2
+    MUL
     1000 PUSHINT
     DIV
-    MUL
+    SUB
   }>
   $StakingContract$_fun_get_ratio_of_stake PROCREF:<{
     s8 s7 s6 PUSH3
@@ -728,6 +727,7 @@ PROGRAM{
     s12 PUSH
     257 PUSHINT
     __tact_dict_get_slice_int INLINECALLDICT
+    __tact_not_null INLINECALLDICT
     DUP
     ISNULL
     IF:<{
@@ -739,10 +739,8 @@ PROGRAM{
       __tact_dict_set_slice_int INLINECALLDICT
     }>ELSE<{
       DUP
-      __tact_not_null INLINECALLDICT
       -1 GTINT
       IF:<{
-        __tact_not_null INLINECALLDICT
         s6 PUSH
         ADD
         s1 s5 XCHG
@@ -889,7 +887,7 @@ PROGRAM{
     209474421377847335869795010607481022628 PUSHINT
   }>
   get_abi_ipfs PROC:<{
-    x{697066733a2f2f516d515a7164556539536f636d565051463274766d4553513339577637676f4b33657a4d335a427557595a385175} PUSHSLICE
+    x{697066733a2f2f516d61326171323239334572474c61435a53624a3850367a69746a7058643738784251633976764779634b583562} PUSHSLICE
   }>
   lazy_deployment_completed PROC:<{
     c4 PUSH
@@ -923,7 +921,7 @@ PROGRAM{
       TRUE
     }>
     DUP
-    1935855772 PUSHINT
+    2905361094 PUSHINT
     EQUAL
     IFJMP:<{
       DROP
