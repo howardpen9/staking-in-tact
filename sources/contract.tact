@@ -73,15 +73,21 @@ contract StakingContract {
         self.forward(ctx.sender, "Success".asComment(), false, null);
     }
 
-    // 2️⃣ 正常收款時、由此訊息判斷
+    // 2️⃣ The notification for the Jetton Token contract noification
     receive(stake: TokenNotification){
         let ctx: Context = context();
+        // Check the sender is from the Jetton Wallet
         require(ctx.sender == self.this_contract_jettonWallet, "not from one of any jetton wallet");
+
+        // Manipulating the score you want to give, no matter based on time or amount
         let score: Int = self.score_function(stake.amount);
+
+        // Update the stake record
         self.stake_record.set(self.index,
             StakeRecord{stake_address: stake.from, jjj_stake_amount: stake.amount, score: score}
         );
-        // Update the weight
+
+        // Update the weight of the user, if the user is in the list, then add it
         let previous_score: Int = self.score_list.get(stake.from)!!;
         if (previous_score == null) {
             self.score_list.set(stake.from, score);
@@ -89,15 +95,15 @@ contract StakingContract {
             previous_score = previous_score + score;
             self.score_list.set(stake.from, previous_score);
         }
-        // Submit the Log Event
-        emit(TransferEvent{sender_address: stake.from, jetton_amount: stake.amount, score: score}.toCell());
+
         self.total_score = self.total_score + score;
         self.index = self.index + 1;
+
+        // Submit the Log Event
+        emit(TransferEvent{sender_address: stake.from, jetton_amount: stake.amount, score: score}.toCell());
     }
 
-    // receive(msg: ChangeParater) { // TODO
-    //     self.parameter = msg.parameter;
-    // }
+
 
      fun score_function(jjj_amount: Int): Int {
         return jjj_amount * pow(10, 18) / now() - self.start_time * self.parameter / 1000; // 15000 / 1000
