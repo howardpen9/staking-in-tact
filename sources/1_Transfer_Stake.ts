@@ -29,8 +29,7 @@ dotenv.config();
     let deployer_wallet = WalletContractV4.create({ workchain, publicKey: keyPair.publicKey });
     let deployer_wallet_contract = client4.open(deployer_wallet);
 
-    // let jettonMaster_address = Address.parse("JETTON TOKEN ROOT"); // 🔴 Jetton Root, the token Address you want to support
-    let jettonMaster_address = Address.parse("EQB0EN3UlNiAEj18cN7qs7rF4rvLKtQ2-bkjMZN4w5A13lXA");
+    let jettonMaster_address = Address.parse("JETTON TOKEN ROOT"); // 🔴 Jetton Root, the token Address you want to support
 
     let staking_init = await StakingContract.init(jettonMaster_address, deployer_wallet.address, 15000n);
     let stakingContract_address = contractAddress(workchain, staking_init);

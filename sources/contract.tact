@@ -8,6 +8,7 @@ message TokenTransfer {
     forward_ton_amount: Int as coins;
     forward_payload: Slice as remaining;
 }
+
 message TokenNotification {
     queryId: Int as uint64;
     amount: Int as coins;
@@ -45,16 +46,23 @@ message GetWeighted {
 
     TODO: 單個 Staking 合約支持多種代幣質押的可能性？                                      
 */
-contract StakingContract {
+contract StakingContract { // -> JettonWallet  Address
     this_contract_jettonWallet: Address;
     owner: Address;
 
     index: Int as uint32 = 0;
+    
     stake_record: map<Int, StakeRecord>;
     score_list: map<Address, Int>;
+    
     start_time: Int as uint32;
     total_score: Int as uint128 = 0;
     parameter: Int as uint16;
+
+    // jetton_root_init: InitOf;
+    // get fun get_jetton_root(): Address{}
+    // InitOf vs Address 存儲成本 
+
     init(this_contract_jettonWallet: Address, _owner: Address, parameter: Int){
         self.this_contract_jettonWallet = this_contract_jettonWallet;
         self.owner = _owner;
@@ -75,6 +83,9 @@ contract StakingContract {
 
     // 2️⃣ The notification for the Jetton Token contract noification
     receive(stake: TokenNotification){
+        // TODO: Require Enough Gas Fee? Otherwise, the stake will be failed.
+        // **NOTICE: The Gas Fee in Jettoken Transfer on TonKeeper.
+
         let ctx: Context = context();
         // Check the sender is from the Jetton Wallet
         require(ctx.sender == self.this_contract_jettonWallet, "not from one of any jetton wallet");
@@ -127,11 +138,13 @@ contract StakingContract {
         let ctx: Context = context();
         let user_score: Int = self.score_list.get(msg.applied_user_address)!!;
         require(user_score > 0, "no Record");
-        send(SendParameters{to: ctx.sender,
+        send(SendParameters{
+                to: ctx.sender,
                 value: 0,
                 mode: SendRemainingValue + SendIgnoreErrors,
                 bounce: true,
-                body: PassScoreToRoundContract{checked_address: msg.applied_user_address, // 0xe5fd7f29
+                body: PassScoreToRoundContract{
+                    checked_address: msg.applied_user_address, // 0xe5fd7f29
                     return_score: user_score
                 }.toCell()
             }
@@ -151,18 +164,22 @@ contract StakingContract {
         let stake_record: StakeRecord = self.stake_record.get(msg.index_id)!!;
         require(stake_record.jjj_stake_amount > 0, "don't have value");
         self.stake_record.set(msg.index_id, null);
-        send(SendParameters{to: self.this_contract_jettonWallet,
-                value: 0,
-                mode: SendRemainingValue + SendIgnoreErrors,
-                bounce: false, // 0x7362d09c - notify new owner
-                body: TokenTransfer{queryId: 0,
-                    amount: stake_record.jjj_stake_amount,
-                    destination: ctx.sender,
-                    response_destination: myAddress(),
-                    custom_payload: null,
-                    forward_ton_amount: ton("0.01"),
-                    forward_payload: emptySlice()
-                }.toCell()
+        send(SendParameters{
+            to: self.this_contract_jettonWallet,
+            value: 0,
+            mode: SendRemainingValue + SendIgnoreErrors,
+            bounce: false, // 0x7362d09c - notify new owner
+            body: TokenTransfer {
+                queryId: 0,
+                amount: stake_record.jjj_stake_amount,
+                destination: ctx.sender,
+                response_destination: myAddress(),
+                custom_payload: null,
+                forward_ton_amount: ton("0.01"),
+                // forward_payload: self.total_score
+                forward_payload: emptySlice()
+                // value >= msg.forward_payload:
+            }.toCell()
             }
         );
 
@@ -183,7 +200,8 @@ contract StakingContract {
 
     get fun get_return_staking_data(): StakingData {
         return
-            StakingData{index: self.index,
+            StakingData {
+                index: self.index,
                 this_contract_jettonWallet: self.this_contract_jettonWallet,
                 total_score: self.total_score,
                 parameter: self.parameter
