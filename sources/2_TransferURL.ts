@@ -15,11 +15,13 @@ let deploy_address = Address.parse("EQD1ptyvitBi3JbHaDQt_6j-15ABn9BqdABTFA1vgzs3
 
     // Get Staking Contract
     let jetton_masterWallet = Address.parse(""); // 🔴 Change to your own
+
     let staking_init = await StakingContract.init(jetton_masterWallet, deploy_address, 15000n);
     let stakingContract_address = contractAddress(0, staking_init);
 
     // 🔴🔴🔴 The Wallet Address that preparing to send the Jetton for staking!
-    let the_wallet_that_will_call_the_URL = Address.parse("kQD1ptyvitBi3JbHaDQt_6j-15ABn9BqdABTFA1vgzs3AVU5");
+    let the_wallet_that_will_call_the_URL = Address.parse("");
+
     let client_jettonMaster = client.open(await new JettonMaster(jetton_masterWallet));
     let jetton_wallet = await client_jettonMaster.getWalletAddress(the_wallet_that_will_call_the_URL);
 
