@@ -20,10 +20,6 @@ builder __tact_store_address(builder b, slice address) inline {
     return b.store_slice(__tact_verify_address(address));
 }
 
-int __tact_my_balance() inline {
-    return pair_first(get_balance());
-}
-
 forall X -> X __tact_not_null(X x) inline {
     throw_if(128, null?(x)); return x;
 }
@@ -79,8 +75,6 @@ int __tact_dict_get_slice_int(cell d, int kl, slice k, int vl) inline {
 int __tact_slice_eq_bits(slice a, slice b) inline {
     return equal_slice_bits(a, b);
 }
-
-forall X0, X1 -> (X0, X1) __tact_tuple_destroy_2(tuple v) asm "2 UNTUPLE";
 
 forall X0, X1, X2 -> tuple __tact_tuple_create_3((X0, X1, X2) v) asm "3 TUPLE";
 
@@ -145,28 +139,4 @@ slice $global_emptySlice() impure inline {
 () $global_emit(cell $body) impure inline {
     cell $c = end_cell(store_ref(store_uint(begin_cell(), 15211807202738752817960438464513, 104), $body));
     send_raw_message($c, 0);
-}
-
-((slice, slice, int, cell, cell, int, int, int), ()) $StakingContract$_fun_forward((slice, slice, int, cell, cell, int, int, int) $self, slice $to, cell $body, int $bounce, tuple $init) impure inline_ref {
-    var (($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter)) = $self;
-    var ($init) = $init;
-    cell $code = null();
-    cell $data = null();
-    if ((~ null?($init))) {
-        var ($init2'code, $init2'data) = $StateInit$_not_null($init);
-        $code = $init2'code;
-        $data = $init2'data;
-    }
-    if ((0 > 0)) {
-        var ($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw) = __tact_context_get();
-        int $balance = __tact_my_balance();
-        int $balanceBeforeMessage = ($balance - $ctx'value);
-        if (($balanceBeforeMessage < 0)) {
-            raw_reserve(0, 0);
-            $global_send($SendParameters$_constructor_bounce_to_value_mode_body_code_data($bounce, $to, 0, (128 + 2), $body, $code, $data));
-            return (($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter), ());
-        }
-    }
-    $global_send($SendParameters$_constructor_bounce_to_value_mode_body_code_data($bounce, $to, 0, (64 + 2), $body, $code, $data));
-    return (($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter), ());
 }

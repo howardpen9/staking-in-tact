@@ -1,12 +1,16 @@
 ;;
-;; Type: StateInit
-;; TLB: _ code:^cell data:^cell = StateInit
+;; Type: Context
+;; TLB: _ bounced:bool sender:address value:int257 raw:^slice = Context
 ;;
 
-((cell, cell)) $StateInit$_not_null(tuple v) inline {
-    throw_if(128, null?(v));
-    var (cell vvv'code, cell vvv'data) = __tact_tuple_destroy_2(v);
-    return (vvv'code, vvv'data);
+_ $Context$_get_sender((int, slice, int, slice) v) inline {
+    var (v'bounced, v'sender, v'value, v'raw) = v;
+    return v'sender;
+}
+
+_ $Context$_get_value((int, slice, int, slice) v) inline {
+    var (v'bounced, v'sender, v'value, v'raw) = v;
+    return v'value;
 }
 
 ;;
@@ -14,12 +18,98 @@
 ;; TLB: _ bounce:bool to:address value:int257 mode:int257 body:Maybe ^cell code:Maybe ^cell data:Maybe ^cell = SendParameters
 ;;
 
-((int, slice, int, int, cell, cell, cell)) $SendParameters$_constructor_bounce_to_value_mode_body_code_data(int bounce, slice to, int value, int mode, cell body, cell code, cell data) inline {
-    return (bounce, to, value, mode, body, code, data);
-}
-
 ((int, slice, int, int, cell, cell, cell)) $SendParameters$_constructor_to_value_mode_bounce_body(slice to, int value, int mode, int bounce, cell body) inline {
     return (bounce, to, value, mode, body, null(), null());
+}
+
+;;
+;; Type: PassScoreToRoundContract
+;; Header: 0xe5fd7f29
+;; TLB: pass_score_to_round_contract#e5fd7f29 checked_address:address return_score:uint64 = PassScoreToRoundContract
+;;
+
+builder $PassScoreToRoundContract$_store(builder build_0, (slice, int) v) inline {
+    var (v'checked_address, v'return_score) = v;
+    build_0 = store_uint(build_0, 3858595625, 32);
+    build_0 = __tact_store_address(build_0, v'checked_address);
+    build_0 = build_0.store_uint(v'return_score, 64);
+    return build_0;
+}
+
+cell $PassScoreToRoundContract$_store_cell((slice, int) v) inline {
+    return $PassScoreToRoundContract$_store(begin_cell(), v).end_cell();
+}
+
+((slice, int)) $PassScoreToRoundContract$_constructor_checked_address_return_score(slice checked_address, int return_score) inline {
+    return (checked_address, return_score);
+}
+
+;;
+;; Type: StakingData
+;; TLB: _ index:uint64 this_contract_jettonWallet:address total_score:coins parameter:uint16 = StakingData
+;;
+
+(int, slice, int, int) $StakingData$_to_external(((int, slice, int, int)) v) inline {
+    var (v'index, v'this_contract_jettonWallet, v'total_score, v'parameter) = v; 
+    return (v'index, v'this_contract_jettonWallet, v'total_score, v'parameter);
+}
+
+((int, slice, int, int)) $StakingData$_constructor_index_this_contract_jettonWallet_total_score_parameter(int index, slice this_contract_jettonWallet, int total_score, int parameter) inline {
+    return (index, this_contract_jettonWallet, total_score, parameter);
+}
+
+;;
+;; Type: StakeRecord
+;; TLB: _ stake_address:address jettonStakeAmount:coins score:uint128 = StakeRecord
+;;
+
+builder $StakeRecord$_store(builder build_0, (slice, int, int) v) inline {
+    var (v'stake_address, v'jettonStakeAmount, v'score) = v;
+    build_0 = __tact_store_address(build_0, v'stake_address);
+    build_0 = build_0.store_coins(v'jettonStakeAmount);
+    build_0 = build_0.store_uint(v'score, 128);
+    return build_0;
+}
+
+cell $StakeRecord$_store_cell((slice, int, int) v) inline {
+    return $StakeRecord$_store(begin_cell(), v).end_cell();
+}
+
+((slice, int, int)) $StakeRecord$_not_null(tuple v) inline {
+    throw_if(128, null?(v));
+    var (slice vvv'stake_address, int vvv'jettonStakeAmount, int vvv'score) = __tact_tuple_destroy_3(v);
+    return (vvv'stake_address, vvv'jettonStakeAmount, vvv'score);
+}
+
+cell $StakeRecord$_store_opt(tuple v) inline {
+    if (null?(v)) {
+        return null();
+    }
+    return $StakeRecord$_store_cell($StakeRecord$_not_null(v));
+}
+
+(slice, ((slice, int, int))) $StakeRecord$_load(slice sc_0) inline {
+    var v'stake_address = sc_0~__tact_load_address();
+    var v'jettonStakeAmount = sc_0~load_coins();
+    var v'score = sc_0~load_uint(128);
+    return (sc_0, (v'stake_address, v'jettonStakeAmount, v'score));
+}
+
+tuple $StakeRecord$_as_optional((slice, int, int) v) inline {
+    var (v'stake_address, v'jettonStakeAmount, v'score) = v;
+    return __tact_tuple_create_3(v'stake_address, v'jettonStakeAmount, v'score);
+}
+
+tuple $StakeRecord$_load_opt(cell cl) inline {
+    if (null?(cl)) {
+        return null();
+    }
+    var sc = cl.begin_parse();
+    return $StakeRecord$_as_optional(sc~$StakeRecord$_load());
+}
+
+((slice, int, int)) $StakeRecord$_constructor_stake_address_jettonStakeAmount_score(slice stake_address, int jettonStakeAmount, int score) inline {
+    return (stake_address, jettonStakeAmount, score);
 }
 
 ;;
@@ -88,18 +178,6 @@ cell $TransferEvent$_store_cell((slice, int, int) v) inline {
 }
 
 ;;
-;; Type: AddingJettonAddress
-;; Header: 0x022702dd
-;; TLB: adding_jetton_address#022702dd this_contract_jettonWallet:address = AddingJettonAddress
-;;
-
-(slice, ((slice))) $AddingJettonAddress$_load(slice sc_0) inline {
-    throw_unless(129, sc_0~load_uint(32) == 36111069);
-    var v'this_contract_jettonWallet = sc_0~__tact_load_address();
-    return (sc_0, (v'this_contract_jettonWallet));
-}
-
-;;
 ;; Type: Unstake
 ;; Header: 0x8515738f
 ;; TLB: unstake#8515738f index_id:uint32 = Unstake
@@ -121,96 +199,6 @@ cell $TransferEvent$_store_cell((slice, int, int) v) inline {
     throw_unless(129, sc_0~load_uint(32) == 323774586);
     var v'applied_user_address = sc_0~__tact_load_address();
     return (sc_0, (v'applied_user_address));
-}
-
-;;
-;; Type: StakingData
-;; TLB: _ index:uint64 this_contract_jettonWallet:address total_score:coins parameter:uint16 = StakingData
-;;
-
-(int, slice, int, int) $StakingData$_to_external(((int, slice, int, int)) v) inline {
-    var (v'index, v'this_contract_jettonWallet, v'total_score, v'parameter) = v; 
-    return (v'index, v'this_contract_jettonWallet, v'total_score, v'parameter);
-}
-
-((int, slice, int, int)) $StakingData$_constructor_index_this_contract_jettonWallet_total_score_parameter(int index, slice this_contract_jettonWallet, int total_score, int parameter) inline {
-    return (index, this_contract_jettonWallet, total_score, parameter);
-}
-
-;;
-;; Type: StakeRecord
-;; TLB: _ stake_address:address jjj_stake_amount:coins score:uint128 = StakeRecord
-;;
-
-builder $StakeRecord$_store(builder build_0, (slice, int, int) v) inline {
-    var (v'stake_address, v'jjj_stake_amount, v'score) = v;
-    build_0 = __tact_store_address(build_0, v'stake_address);
-    build_0 = build_0.store_coins(v'jjj_stake_amount);
-    build_0 = build_0.store_uint(v'score, 128);
-    return build_0;
-}
-
-cell $StakeRecord$_store_cell((slice, int, int) v) inline {
-    return $StakeRecord$_store(begin_cell(), v).end_cell();
-}
-
-((slice, int, int)) $StakeRecord$_not_null(tuple v) inline {
-    throw_if(128, null?(v));
-    var (slice vvv'stake_address, int vvv'jjj_stake_amount, int vvv'score) = __tact_tuple_destroy_3(v);
-    return (vvv'stake_address, vvv'jjj_stake_amount, vvv'score);
-}
-
-cell $StakeRecord$_store_opt(tuple v) inline {
-    if (null?(v)) {
-        return null();
-    }
-    return $StakeRecord$_store_cell($StakeRecord$_not_null(v));
-}
-
-(slice, ((slice, int, int))) $StakeRecord$_load(slice sc_0) inline {
-    var v'stake_address = sc_0~__tact_load_address();
-    var v'jjj_stake_amount = sc_0~load_coins();
-    var v'score = sc_0~load_uint(128);
-    return (sc_0, (v'stake_address, v'jjj_stake_amount, v'score));
-}
-
-tuple $StakeRecord$_as_optional((slice, int, int) v) inline {
-    var (v'stake_address, v'jjj_stake_amount, v'score) = v;
-    return __tact_tuple_create_3(v'stake_address, v'jjj_stake_amount, v'score);
-}
-
-tuple $StakeRecord$_load_opt(cell cl) inline {
-    if (null?(cl)) {
-        return null();
-    }
-    var sc = cl.begin_parse();
-    return $StakeRecord$_as_optional(sc~$StakeRecord$_load());
-}
-
-((slice, int, int)) $StakeRecord$_constructor_stake_address_jjj_stake_amount_score(slice stake_address, int jjj_stake_amount, int score) inline {
-    return (stake_address, jjj_stake_amount, score);
-}
-
-;;
-;; Type: PassScoreToRoundContract
-;; Header: 0xe5fd7f29
-;; TLB: pass_score_to_round_contract#e5fd7f29 checked_address:address return_score:uint64 = PassScoreToRoundContract
-;;
-
-builder $PassScoreToRoundContract$_store(builder build_0, (slice, int) v) inline {
-    var (v'checked_address, v'return_score) = v;
-    build_0 = store_uint(build_0, 3858595625, 32);
-    build_0 = __tact_store_address(build_0, v'checked_address);
-    build_0 = build_0.store_uint(v'return_score, 64);
-    return build_0;
-}
-
-cell $PassScoreToRoundContract$_store_cell((slice, int) v) inline {
-    return $PassScoreToRoundContract$_store(begin_cell(), v).end_cell();
-}
-
-((slice, int)) $PassScoreToRoundContract$_constructor_checked_address_return_score(slice checked_address, int return_score) inline {
-    return (checked_address, return_score);
 }
 
 ;;

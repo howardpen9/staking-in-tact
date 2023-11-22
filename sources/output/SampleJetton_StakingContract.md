@@ -1,6 +1,6 @@
 # TACT Compilation Report
 Contract: StakingContract
-BOC Size: 2127 bytes
+BOC Size: 2059 bytes
 
 # Types
 Total Types: 13
@@ -16,6 +16,18 @@ Signature: `Context{bounced:bool,sender:address,value:int257,raw:^slice}`
 ## SendParameters
 TLB: `_ bounce:bool to:address value:int257 mode:int257 body:Maybe ^cell code:Maybe ^cell data:Maybe ^cell = SendParameters`
 Signature: `SendParameters{bounce:bool,to:address,value:int257,mode:int257,body:Maybe ^cell,code:Maybe ^cell,data:Maybe ^cell}`
+
+## PassScoreToRoundContract
+TLB: `pass_score_to_round_contract#e5fd7f29 checked_address:address return_score:uint64 = PassScoreToRoundContract`
+Signature: `PassScoreToRoundContract{checked_address:address,return_score:uint64}`
+
+## StakingData
+TLB: `_ index:uint64 this_contract_jettonWallet:address total_score:coins parameter:uint16 = StakingData`
+Signature: `StakingData{index:uint64,this_contract_jettonWallet:address,total_score:coins,parameter:uint16}`
+
+## StakeRecord
+TLB: `_ stake_address:address jettonStakeAmount:coins score:uint128 = StakeRecord`
+Signature: `StakeRecord{stake_address:address,jettonStakeAmount:coins,score:uint128}`
 
 ## TokenTransfer
 TLB: `token_transfer#e54bcffe queryId:uint64 amount:coins destination:address response_destination:address custom_payload:Maybe ^cell forward_ton_amount:coins forward_payload:remainder<slice> = TokenTransfer`
@@ -44,18 +56,6 @@ Signature: `Redeem{queryId:uint64,project_id:uint16}`
 ## GetWeighted
 TLB: `get_weighted#134c687a applied_user_address:address = GetWeighted`
 Signature: `GetWeighted{applied_user_address:address}`
-
-## StakingData
-TLB: `_ index:uint64 this_contract_jettonWallet:address total_score:coins parameter:uint16 = StakingData`
-Signature: `StakingData{index:uint64,this_contract_jettonWallet:address,total_score:coins,parameter:uint16}`
-
-## StakeRecord
-TLB: `_ stake_address:address jjj_stake_amount:coins score:uint128 = StakeRecord`
-Signature: `StakeRecord{stake_address:address,jjj_stake_amount:coins,score:uint128}`
-
-## PassScoreToRoundContract
-TLB: `pass_score_to_round_contract#e5fd7f29 checked_address:address return_score:uint64 = PassScoreToRoundContract`
-Signature: `PassScoreToRoundContract{checked_address:address,return_score:uint64}`
 
 # Get Methods
 Total Get Methods: 6
@@ -103,5 +103,5 @@ Argument: StakeTokenAmount
 6582: no Record
 7013: don't have value
 17054: not from one of any jetton wallet
+57218: not enough value
 57660: not in the list
-61324: not from owner

@@ -4,7 +4,6 @@
 
 #include "SampleJetton_StakingContract.headers.fc";
 #include "SampleJetton_StakingContract.stdlib.fc";
-#include "SampleJetton_StakingContract.constants.fc";
 #include "SampleJetton_StakingContract.storage.fc";
 
 ;;
@@ -20,9 +19,14 @@
     return ($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter);
 }
 
-((slice, slice, int, cell, cell, int, int, int), int) $StakingContract$_fun_score_function((slice, slice, int, cell, cell, int, int, int) $self, int $jjj_amount) impure inline_ref {
+((slice, slice, int, cell, cell, int, int, int), int) $StakingContract$_fun_durationTime((slice, slice, int, cell, cell, int, int, int) $self) impure inline_ref {
     var (($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter)) = $self;
-    return (($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter), ((($jjj_amount * 1000000000000000000) / now()) - (($self'start_time * $self'parameter) / 1000)));
+    return (($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter), (now() - $self'start_time));
+}
+
+((slice, slice, int, cell, cell, int, int, int), int) $StakingContract$_fun_score_function((slice, slice, int, cell, cell, int, int, int) $self, int $jetton_amount) impure inline_ref {
+    var (($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter)) = $self;
+    return (($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter), (((($jetton_amount * 1000000000000000000) / ($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter)~$StakingContract$_fun_durationTime()) * $self'parameter) / 1000));
 }
 
 ((slice, slice, int, cell, cell, int, int, int), int) $StakingContract$_fun_get_ratio_of_stake((slice, slice, int, cell, cell, int, int, int) $self, int $StakeTokenAmount) impure inline_ref {
@@ -59,23 +63,13 @@
 ;; Receivers of a Contract StakingContract
 ;;
 
-(((slice, slice, int, cell, cell, int, int, int)), ()) $StakingContract$_internal_binary_AddingJettonAddress((slice, slice, int, cell, cell, int, int, int) $self, (slice) $msg) impure inline {
-    var ($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter) = $self;
-    var ($msg'this_contract_jettonWallet) = $msg;
-    var ($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw) = __tact_context_get();
-    throw_unless(61324, ( __tact_slice_eq_bits($self'owner, $ctx'sender) ));
-    $self'this_contract_jettonWallet = $msg'this_contract_jettonWallet;
-    ($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter)~$StakingContract$_fun_forward($ctx'sender, __gen_cell_comment_37e90db9d1f7725dc0128ee6bad2035fb50479e09a488a29257bed01a23050a0(), false, null());
-    return (($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter), ());
-}
-
 (((slice, slice, int, cell, cell, int, int, int)), ()) $StakingContract$_internal_binary_TokenNotification((slice, slice, int, cell, cell, int, int, int) $self, (int, int, slice, slice) $stake) impure inline {
     var ($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter) = $self;
     var ($stake'queryId, $stake'amount, $stake'from, $stake'forward_payload) = $stake;
-    var ($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw) = __tact_context_get();
-    throw_unless(17054, ( __tact_slice_eq_bits($self'this_contract_jettonWallet, $ctx'sender) ));
+    throw_unless(57218, ($Context$_get_value(__tact_context_get()) >= 100000000));
+    throw_unless(17054, ( __tact_slice_eq_bits($self'this_contract_jettonWallet, $Context$_get_sender(__tact_context_get())) ));
     int $score = ($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter)~$StakingContract$_fun_score_function($stake'amount);
-    $self'stake_record~__tact_dict_set_int_cell(257, $self'index, $StakeRecord$_store_cell($StakeRecord$_constructor_stake_address_jjj_stake_amount_score($stake'from, $stake'amount, $score)));
+    $self'stake_record~__tact_dict_set_int_cell(257, $self'index, $StakeRecord$_store_cell($StakeRecord$_constructor_stake_address_jettonStakeAmount_score($stake'from, $stake'amount, $score)));
     int $previous_score = __tact_not_null(__tact_dict_get_slice_int($self'score_list, 267, $stake'from, 257));
     if (null?($previous_score)) {
         $self'score_list~__tact_dict_set_slice_int(267, $stake'from, $score, 257);
@@ -83,9 +77,9 @@
         $previous_score = ($previous_score + $score);
         $self'score_list~__tact_dict_set_slice_int(267, $stake'from, $previous_score, 257);
     }
-    $global_emit($TransferEvent$_store_cell($TransferEvent$_constructor_sender_address_jetton_amount_score($stake'from, $stake'amount, $score)));
     $self'total_score = ($self'total_score + $score);
     $self'index = ($self'index + 1);
+    $global_emit($TransferEvent$_store_cell($TransferEvent$_constructor_sender_address_jetton_amount_score($stake'from, $stake'amount, $score)));
     return (($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter), ());
 }
 
@@ -102,13 +96,12 @@
 (((slice, slice, int, cell, cell, int, int, int)), ()) $StakingContract$_internal_binary_Unstake((slice, slice, int, cell, cell, int, int, int) $self, (int) $msg) impure inline {
     var ($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter) = $self;
     var ($msg'index_id) = $msg;
-    var ($ctx'bounced, $ctx'sender, $ctx'value, $ctx'raw) = __tact_context_get();
-    int $ww = __tact_not_null(__tact_dict_get_slice_int($self'score_list, 267, $ctx'sender, 257));
-    throw_unless(57660, ($ww > 0));
-    var ($stake_record'stake_address, $stake_record'jjj_stake_amount, $stake_record'score) = $StakeRecord$_not_null($StakeRecord$_load_opt(__tact_dict_get_int_cell($self'stake_record, 257, $msg'index_id)));
-    throw_unless(7013, ($stake_record'jjj_stake_amount > 0));
+    int $weight = __tact_not_null(__tact_dict_get_slice_int($self'score_list, 267, $Context$_get_sender(__tact_context_get()), 257));
+    throw_unless(57660, ($weight > 0));
+    var ($stake_record'stake_address, $stake_record'jettonStakeAmount, $stake_record'score) = $StakeRecord$_not_null($StakeRecord$_load_opt(__tact_dict_get_int_cell($self'stake_record, 257, $msg'index_id)));
+    throw_unless(7013, ($stake_record'jettonStakeAmount > 0));
     $self'stake_record~__tact_dict_set_int_cell(257, $msg'index_id, $StakeRecord$_store_opt(null()));
-    $global_send($SendParameters$_constructor_to_value_mode_bounce_body($self'this_contract_jettonWallet, 0, (64 + 2), false, $TokenTransfer$_store_cell($TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload(0, $stake_record'jjj_stake_amount, $ctx'sender, my_address(), null(), 10000000, $global_emptySlice()))));
+    $global_send($SendParameters$_constructor_to_value_mode_bounce_body($self'this_contract_jettonWallet, 0, (64 + 2), false, $TokenTransfer$_store_cell($TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload(0, $stake_record'jettonStakeAmount, $Context$_get_sender(__tact_context_get()), my_address(), null(), 10000000, $global_emptySlice()))));
     return (($self'this_contract_jettonWallet, $self'owner, $self'index, $self'stake_record, $self'score_list, $self'start_time, $self'total_score, $self'parameter), ());
 }
 
@@ -170,7 +163,7 @@ _ supported_interfaces() method_id {
 }
 
 _ get_abi_ipfs() method_id {
-    return "ipfs://Qma2aq2293ErGLaCZSbJ8P6zitjpXd78xBQc9vvGycKX5b";
+    return "ipfs://QmfPLqY5yzqc6LSq8utdDMSHbqMivXhpLTJs31gxrTcqjS";
 }
 
 _ lazy_deployment_completed() method_id {
@@ -193,13 +186,6 @@ _ lazy_deployment_completed() method_id {
         op = in_msg.preload_uint(32);
     }
     
-    
-    ;; Receive AddingJettonAddress message
-    if (op == 36111069) {
-        var msg = in_msg~$AddingJettonAddress$_load();
-        self~$StakingContract$_internal_binary_AddingJettonAddress(msg);
-        return (self, true);
-    }
     
     ;; Receive TokenNotification message
     if (op == 2905361094) {

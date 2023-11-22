@@ -71,7 +71,7 @@ import { StakingContract } from "./output/SampleJetton_StakingContract";
         for (let i = 0; i < keys.length; i++) {
             if (value.length > 0) {
                 let a = value[i].stake_address;
-                let b = value[i].jjj_stake_amount;
+                let b = value[i].jettonStakeAmount;
                 let c = value[i].score;
                 console.log("✨Index[" + keys[i].toString() + "]:" + a + " |QTY: " + fromNano(b).toString());
                 console.log("💎 Jetton | Score: " + c);
