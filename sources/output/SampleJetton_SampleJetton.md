@@ -1,6 +1,6 @@
 # TACT Compilation Report
-Contract: StakingContract
-BOC Size: 1849 bytes
+Contract: SampleJetton
+BOC Size: 1702 bytes
 
 # Types
 Total Types: 25
@@ -108,11 +108,12 @@ Signature: `ChangeOwnerOk{queryId:uint64,newOwner:address}`
 # Get Methods
 Total Get Methods: 3
 
-## get_user_stake_record
+## get_jetton_data
 
-## get_user_stake_amount
+## get_wallet_address
+Argument: owner
 
-## get_return_staking_data
+## owner
 
 # Error Codes
 2: Stack undeflow

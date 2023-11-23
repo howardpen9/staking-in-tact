@@ -9,8 +9,14 @@ slice __tact_verify_address(slice address) inline;
 ;; __tact_load_address
 (slice, slice) __tact_load_address(slice cs) inline;
 
+;; __tact_load_address_opt
+(slice, slice) __tact_load_address_opt(slice cs) inline;
+
 ;; __tact_store_address
 builder __tact_store_address(builder b, slice address) inline;
+
+;; __tact_store_address_opt
+builder __tact_store_address_opt(builder b, slice address) inline;
 
 ;; __tact_not_null
 forall X -> X __tact_not_null(X x) inline;
@@ -33,8 +39,8 @@ cell __tact_dict_get_int_cell(cell d, int kl, int k) inline;
 ;; __tact_dict_get_slice_int
 int __tact_dict_get_slice_int(cell d, int kl, slice k, int vl) inline;
 
-;; __tact_slice_eq_bits
-int __tact_slice_eq_bits(slice a, slice b) inline;
+;; __tact_slice_eq_bits_nullable_one
+int __tact_slice_eq_bits_nullable_one(slice a, slice b) inline;
 
 ;; $PassScoreToRoundContract$_store
 builder $PassScoreToRoundContract$_store(builder build_0, (slice, int) v) inline;
@@ -63,15 +69,6 @@ tuple $StakeRecord$_as_optional((slice, int, int) v) inline;
 ;; $StakeRecord$_load_opt
 tuple $StakeRecord$_load_opt(cell cl) inline;
 
-;; $TokenTransfer$_store
-builder $TokenTransfer$_store(builder build_0, (int, int, slice, slice, cell, int, slice) v) inline_ref;
-
-;; $TokenTransfer$_store_cell
-cell $TokenTransfer$_store_cell((int, int, slice, slice, cell, int, slice) v) inline;
-
-;; $TokenNotification$_load
-(slice, ((int, int, slice, slice))) $TokenNotification$_load(slice sc_0) inline;
-
 ;; $TransferEvent$_store
 builder $TransferEvent$_store(builder build_0, (slice, int, int) v) inline;
 
@@ -83,6 +80,15 @@ cell $TransferEvent$_store_cell((slice, int, int) v) inline;
 
 ;; $GetWeighted$_load
 (slice, ((slice))) $GetWeighted$_load(slice sc_0) inline;
+
+;; $TokenTransfer$_store
+builder $TokenTransfer$_store(builder build_0, (int, int, slice, slice, cell, int, slice) v) inline_ref;
+
+;; $TokenTransfer$_store_cell
+cell $TokenTransfer$_store_cell((int, int, slice, slice, cell, int, slice) v) inline;
+
+;; $TokenNotification$_load
+(slice, ((int, int, slice, slice))) $TokenNotification$_load(slice sc_0) inline;
 
 ;; $StakingContract$_store
 builder $StakingContract$_store(builder build_0, (slice, slice, int, cell, cell, int, int, int) v) inline;
@@ -100,10 +106,10 @@ _ $Context$_get_value((int, slice, int, slice) v) inline;
 (int, slice, int, int) $StakingData$_to_external(((int, slice, int, int)) v) inline;
 
 ;; $StakingContract$init$_load
-(slice, ((slice, slice, int))) $StakingContract$init$_load(slice sc_0) inline;
+(slice, ((slice, int))) $StakingContract$init$_load(slice sc_0) inline;
 
 ;; $StakingContract$_contract_init
-(slice, slice, int, cell, cell, int, int, int) $StakingContract$_contract_init(slice $this_contract_jettonWallet, slice $_owner, int $parameter) impure inline_ref;
+(slice, slice, int, cell, cell, int, int, int) $StakingContract$_contract_init(slice $_owner, int $_parameter) impure inline_ref;
 
 ;; $StakingContract$_contract_load
 (slice, slice, int, cell, cell, int, int, int) $StakingContract$_contract_load() impure inline_ref;
@@ -132,15 +138,6 @@ slice $global_emptySlice() impure inline;
 ;; $StakingContract$_fun_score_function
 ((slice, slice, int, cell, cell, int, int, int), int) $StakingContract$_fun_score_function((slice, slice, int, cell, cell, int, int, int) $self, int $jetton_amount) impure inline_ref;
 
-;; $StakingContract$_fun_get_ratio_of_stake
-((slice, slice, int, cell, cell, int, int, int), int) $StakingContract$_fun_get_ratio_of_stake((slice, slice, int, cell, cell, int, int, int) $self, int $StakeTokenAmount) impure inline_ref;
-
-;; $StakingContract$_fun_get_ratio_of_stake_2
-((slice, slice, int, cell, cell, int, int, int), int) $StakingContract$_fun_get_ratio_of_stake_2((slice, slice, int, cell, cell, int, int, int) $self, int $StakeTokenAmount) impure inline_ref;
-
-;; $StakingContract$_fun_get_ratio_of_stake_3
-((slice, slice, int, cell, cell, int, int, int), int) $StakingContract$_fun_get_ratio_of_stake_3((slice, slice, int, cell, cell, int, int, int) $self, int $StakeTokenAmount) impure inline_ref;
-
 ;; $StakingContract$_fun_get_user_stake_record
 ((slice, slice, int, cell, cell, int, int, int), cell) $StakingContract$_fun_get_user_stake_record((slice, slice, int, cell, cell, int, int, int) $self) impure inline_ref;
 
@@ -165,5 +162,5 @@ slice $global_emptySlice() impure inline;
 ;; $PassScoreToRoundContract$_constructor_checked_address_return_score
 ((slice, int)) $PassScoreToRoundContract$_constructor_checked_address_return_score(slice checked_address, int return_score) inline;
 
-;; $TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload
-((int, int, slice, slice, cell, int, slice)) $TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload(int queryId, int amount, slice destination, slice response_destination, cell custom_payload, int forward_ton_amount, slice forward_payload) inline;
+;; $TokenTransfer$_constructor_query_id_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload
+((int, int, slice, slice, cell, int, slice)) $TokenTransfer$_constructor_query_id_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload(int query_id, int amount, slice destination, slice response_destination, cell custom_payload, int forward_ton_amount, slice forward_payload) inline;

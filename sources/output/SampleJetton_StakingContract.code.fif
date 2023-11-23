@@ -1,7 +1,9 @@
 PROGRAM{
   DECLPROC __tact_verify_address
   DECLPROC __tact_load_address
+  DECLPROC __tact_load_address_opt
   DECLPROC __tact_store_address
+  DECLPROC __tact_store_address_opt
   DECLPROC __tact_not_null
   DECLPROC __tact_context_get
   DECLPROC __tact_store_bool
@@ -9,7 +11,7 @@ PROGRAM{
   DECLPROC __tact_dict_get_int_cell
   DECLPROC __tact_dict_set_slice_int
   DECLPROC __tact_dict_get_slice_int
-  DECLPROC __tact_slice_eq_bits
+  DECLPROC __tact_slice_eq_bits_nullable_one
   DECLPROC $PassScoreToRoundContract$_store
   DECLPROC $PassScoreToRoundContract$_store_cell
   DECLPROC $StakeRecord$_store
@@ -19,13 +21,13 @@ PROGRAM{
   DECLPROC $StakeRecord$_load
   DECLPROC $StakeRecord$_as_optional
   DECLPROC $StakeRecord$_load_opt
-  DECLPROC $TokenTransfer$_store
-  DECLPROC $TokenTransfer$_store_cell
-  DECLPROC $TokenNotification$_load
   DECLPROC $TransferEvent$_store
   DECLPROC $TransferEvent$_store_cell
   DECLPROC $Unstake$_load
   DECLPROC $GetWeighted$_load
+  DECLPROC $TokenTransfer$_store
+  DECLPROC $TokenTransfer$_store_cell
+  DECLPROC $TokenNotification$_load
   DECLPROC $StakingContract$_store
   DECLPROC $StakingContract$_load
   DECLPROC $Context$_get_sender
@@ -42,9 +44,6 @@ PROGRAM{
   DECLPROC $global_emit
   DECLPROC $StakingContract$_fun_durationTime
   DECLPROC $StakingContract$_fun_score_function
-  DECLPROC $StakingContract$_fun_get_ratio_of_stake
-  DECLPROC $StakingContract$_fun_get_ratio_of_stake_2
-  DECLPROC $StakingContract$_fun_get_ratio_of_stake_3
   DECLPROC $StakingContract$_fun_get_user_stake_record
   DECLPROC $StakingContract$_fun_get_user_stake_amount
   DECLPROC $StakingData$_constructor_index_this_contract_jettonWallet_total_score_parameter
@@ -53,14 +52,11 @@ PROGRAM{
   DECLPROC $TransferEvent$_constructor_sender_address_jetton_amount_score
   DECLPROC $SendParameters$_constructor_to_value_mode_bounce_body
   DECLPROC $PassScoreToRoundContract$_constructor_checked_address_return_score
-  DECLPROC $TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload
+  DECLPROC $TokenTransfer$_constructor_query_id_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload
   DECLPROC $StakingContract$_internal_binary_TokenNotification
   DECLPROC $StakingContract$_internal_binary_GetWeighted
   DECLPROC $StakingContract$_internal_binary_Unstake
   DECLPROC %$StakingContract$_internal_empty
-  87169 DECLMETHOD %get_ratio_of_stake
-  84802 DECLMETHOD %get_ratio_of_stake_2
-  88931 DECLMETHOD %get_ratio_of_stake_3
   70349 DECLMETHOD %get_user_stake_record
   88891 DECLMETHOD %get_user_stake_amount
   123291 DECLMETHOD %get_return_staking_data
@@ -94,9 +90,34 @@ PROGRAM{
     SWAP
     __tact_verify_address INLINECALLDICT
   }>
+  __tact_load_address_opt PROCINLINE:<{
+    LDMSGADDR
+    OVER
+    2 PLDU
+    0 NEQINT
+    IF:<{
+      SWAP
+      __tact_verify_address INLINECALLDICT
+    }>ELSE<{
+      NIP
+      PUSHNULL
+    }>
+  }>
   __tact_store_address PROCINLINE:<{
     __tact_verify_address INLINECALLDICT
     STSLICER
+  }>
+  __tact_store_address_opt PROCINLINE:<{
+    DUP
+    ISNULL
+    IF:<{
+      DROP
+      0 PUSHINT
+      SWAP
+      2 STU
+    }>ELSE<{
+      __tact_store_address INLINECALLDICT
+    }>
   }>
   __tact_not_null PROCINLINE:<{
     DUP
@@ -163,8 +184,15 @@ PROGRAM{
       PUSHNULL
     }>
   }>
-  __tact_slice_eq_bits PROCINLINE:<{
-    SDEQ
+  __tact_slice_eq_bits_nullable_one PROCINLINE:<{
+    OVER
+    ISNULL
+    IF:<{
+      2DROP
+      FALSE
+    }>ELSE<{
+      SDEQ
+    }>
   }>
   $PassScoreToRoundContract$_store PROCINLINE:<{
     3858595625 PUSHINT
@@ -233,8 +261,41 @@ PROGRAM{
       $StakeRecord$_as_optional INLINECALLDICT
     }>
   }>
+  $TransferEvent$_store PROCINLINE:<{
+    1382804827 PUSHINT
+    s0 s4 XCHG2
+    32 STU
+    ROT
+    __tact_store_address INLINECALLDICT
+    SWAP
+    STGRAMS
+    128 STU
+  }>
+  $TransferEvent$_store_cell PROCINLINE:<{
+    NEWC
+    3 -ROLL
+    $TransferEvent$_store INLINECALLDICT
+    ENDC
+  }>
+  $Unstake$_load PROCINLINE:<{
+    32 LDU
+    SWAP
+    2232775567 PUSHINT
+    EQUAL
+    129 THROWIFNOT
+    32 LDU
+    SWAP
+  }>
+  $GetWeighted$_load PROCINLINE:<{
+    32 LDU
+    SWAP
+    323774586 PUSHINT
+    EQUAL
+    129 THROWIFNOT
+    __tact_load_address INLINECALLDICT
+  }>
   $TokenTransfer$_store PROCREF:<{
-    3846950910 PUSHINT
+    260734629 PUSHINT
     s0 s8 XCHG2
     32 STU
     s1 s6 XCHG
@@ -272,7 +333,7 @@ PROGRAM{
   $TokenNotification$_load PROCINLINE:<{
     32 LDU
     SWAP
-    2905361094 PUSHINT
+    1935855772 PUSHINT
     EQUAL
     129 THROWIFNOT
     64 LDU
@@ -281,42 +342,9 @@ PROGRAM{
     s3 s0 s3 XC2PU
     s2 s3 XCHG
   }>
-  $TransferEvent$_store PROCINLINE:<{
-    1382804827 PUSHINT
-    s0 s4 XCHG2
-    32 STU
-    ROT
-    __tact_store_address INLINECALLDICT
-    SWAP
-    STGRAMS
-    128 STU
-  }>
-  $TransferEvent$_store_cell PROCINLINE:<{
-    NEWC
-    3 -ROLL
-    $TransferEvent$_store INLINECALLDICT
-    ENDC
-  }>
-  $Unstake$_load PROCINLINE:<{
-    32 LDU
-    SWAP
-    2232775567 PUSHINT
-    EQUAL
-    129 THROWIFNOT
-    32 LDU
-    SWAP
-  }>
-  $GetWeighted$_load PROCINLINE:<{
-    32 LDU
-    SWAP
-    323774586 PUSHINT
-    EQUAL
-    129 THROWIFNOT
-    __tact_load_address INLINECALLDICT
-  }>
   $StakingContract$_store PROCINLINE:<{
     s8 s7 XCHG2
-    __tact_store_address INLINECALLDICT
+    __tact_store_address_opt INLINECALLDICT
     s0 s5 XCHG2
     __tact_store_address INLINECALLDICT
     s1 s3 XCHG
@@ -329,7 +357,7 @@ PROGRAM{
     16 STU
   }>
   $StakingContract$_load PROCINLINE:<{
-    __tact_load_address INLINECALLDICT
+    __tact_load_address_opt INLINECALLDICT
     SWAP
     __tact_load_address INLINECALLDICT
     SWAP
@@ -354,17 +382,18 @@ PROGRAM{
   $StakingContract$init$_load PROCINLINE:<{
     __tact_load_address INLINECALLDICT
     SWAP
-    __tact_load_address INLINECALLDICT
-    SWAP
     257 PUSHINT
     LDIX
-    3 -ROLL
+    -ROT
   }>
   $StakingContract$_contract_init PROCREF:<{
+    PUSHNULL
     0 PUSHINT
     PUSHNULL
     PUSHNULL
     s2 PUSH
+    s4 s6 XCHG
+    s4 s5 XCHG
     s3 s4 XCHG
     s1 s3 s0 XCHG3
     NOW
@@ -388,9 +417,9 @@ PROGRAM{
     EQUAL
     137 THROWIFNOT
     $StakingContract$init$_load INLINECALLDICT
-    s0 s3 XCHG
+    s0 s2 XCHG
     ENDS
-    ROT
+    SWAP
     $StakingContract$_contract_init INLINECALLDICT
   }>
   $StakingContract$_contract_store PROCINLINE:<{
@@ -557,88 +586,6 @@ PROGRAM{
     1000 PUSHINT
     DIV
   }>
-  $StakingContract$_fun_get_ratio_of_stake PROCREF:<{
-    s8 s7 s6 PUSH3
-    s8 s7 s6 PUSH3
-    s8 s7 PUSH2
-    s8 16 s() XCHG
-    s7 s15 XCHG
-    s6 s14 XCHG
-    s5 s13 XCHG
-    s4 s12 XCHG
-    s3 s11 XCHG
-    s2 s10 XCHG
-    s0 16 s() XCHG
-    s1 s9 XCHG
-    $StakingContract$_fun_score_function INLINECALLDICT
-    NIP
-    6 2 BLKDROP2
-    1000000000 PUSHINT
-    MUL
-    SWAP
-    DIV
-    s7 s8 XCHG
-    s6 s7 XCHG
-    s5 s6 XCHG
-    s4 s5 XCHG
-    s3 s4 XCHG
-    s1 s3 s0 XCHG3
-  }>
-  $StakingContract$_fun_get_ratio_of_stake_2 PROCREF:<{
-    s8 s7 s6 PUSH3
-    s8 s7 s6 PUSH3
-    s8 s7 PUSH2
-    s8 16 s() XCHG
-    s7 s15 XCHG
-    s6 s14 XCHG
-    s5 s13 XCHG
-    s4 s12 XCHG
-    s3 s11 XCHG
-    s2 s10 XCHG
-    s0 16 s() XCHG
-    s1 s9 XCHG
-    $StakingContract$_fun_score_function INLINECALLDICT
-    NIP
-    6 2 BLKDROP2
-    1000000 PUSHINT
-    MUL
-    SWAP
-    DIV
-    s7 s8 XCHG
-    s6 s7 XCHG
-    s5 s6 XCHG
-    s4 s5 XCHG
-    s3 s4 XCHG
-    s1 s3 s0 XCHG3
-  }>
-  $StakingContract$_fun_get_ratio_of_stake_3 PROCREF:<{
-    s8 s7 s6 PUSH3
-    s8 s7 s6 PUSH3
-    s8 s7 PUSH2
-    s8 16 s() XCHG
-    s7 s15 XCHG
-    s6 s14 XCHG
-    s5 s13 XCHG
-    s4 s12 XCHG
-    s3 s11 XCHG
-    s2 s10 XCHG
-    s0 16 s() XCHG
-    s1 s9 XCHG
-    $StakingContract$_fun_score_function INLINECALLDICT
-    NIP
-    6 2 BLKDROP2
-    100 MULCONST
-    SWAP
-    DIV
-    100 PUSHINT
-    DIV
-    s7 s8 XCHG
-    s6 s7 XCHG
-    s5 s6 XCHG
-    s4 s5 XCHG
-    s3 s4 XCHG
-    s1 s3 s0 XCHG3
-  }>
   $StakingContract$_fun_get_user_stake_record PROCREF:<{
     s4 PUSH
   }>
@@ -648,7 +595,9 @@ PROGRAM{
   $StakingData$_constructor_index_this_contract_jettonWallet_total_score_parameter PROCINLINE:<{
   }>
   $StakingContract$_fun_get_return_staking_data PROCREF:<{
-    s5 s7 s1 PUSH3
+    s7 PUSH
+    __tact_not_null INLINECALLDICT
+    s6 s2 s(-1) PU2XC
     s3 PUSH
     $StakingData$_constructor_index_this_contract_jettonWallet_total_score_parameter INLINECALLDICT
   }>
@@ -664,7 +613,7 @@ PROGRAM{
   }>
   $PassScoreToRoundContract$_constructor_checked_address_return_score PROCINLINE:<{
   }>
-  $TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload PROCINLINE:<{
+  $TokenTransfer$_constructor_query_id_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload PROCINLINE:<{
   }>
   $StakingContract$_internal_binary_TokenNotification PROCINLINE:<{
     DROP
@@ -679,7 +628,7 @@ PROGRAM{
     __tact_context_get INLINECALLDICT
     $Context$_get_sender INLINECALLDICT
     s11 s(-1) PUXC
-    __tact_slice_eq_bits INLINECALLDICT
+    __tact_slice_eq_bits_nullable_one INLINECALLDICT
     THROWANYIFNOT
     8 2 BLKSWAP
     s8 PUSH
@@ -795,6 +744,8 @@ PROGRAM{
     s3 s8 XCHG
     s1 s8 s0 XCHG3
     __tact_dict_set_int_cell INLINECALLDICT
+    s8 PUSH
+    __tact_not_null INLINECALLDICT
     0 PUSHINT
     66 PUSHINT
     FALSE
@@ -806,34 +757,16 @@ PROGRAM{
     10000000 PUSHINT
     $global_emptySlice INLINECALLDICT
     s5 s6 XCHG
-    s5 s14 XCHG
-    $TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload INLINECALLDICT
+    s5 s15 XCHG
+    $TokenTransfer$_constructor_query_id_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload INLINECALLDICT
     $TokenTransfer$_store_cell INLINECALLDICT
-    s11 PUSH
-    s0 s4 XCHG
-    s9 s9 XCHG2
+    s3 s4 XCHG
+    s1 s3 s0 XCHG3
+    s1 s9 XCHG
     $SendParameters$_constructor_to_value_mode_bounce_body INLINECALLDICT
     $global_send INLINECALLDICT
   }>
   %$StakingContract$_internal_empty PROCINLINE:<{
-  }>
-  %get_ratio_of_stake PROC:<{
-    $StakingContract$_contract_load INLINECALLDICT
-    8 ROLL
-    $StakingContract$_fun_get_ratio_of_stake INLINECALLDICT
-    8 1 BLKDROP2
-  }>
-  %get_ratio_of_stake_2 PROC:<{
-    $StakingContract$_contract_load INLINECALLDICT
-    8 ROLL
-    $StakingContract$_fun_get_ratio_of_stake_2 INLINECALLDICT
-    8 1 BLKDROP2
-  }>
-  %get_ratio_of_stake_3 PROC:<{
-    $StakingContract$_contract_load INLINECALLDICT
-    8 ROLL
-    $StakingContract$_fun_get_ratio_of_stake_3 INLINECALLDICT
-    8 1 BLKDROP2
   }>
   %get_user_stake_record PROC:<{
     $StakingContract$_contract_load INLINECALLDICT
@@ -858,7 +791,7 @@ PROGRAM{
     209474421377847335869795010607481022628 PUSHINT
   }>
   get_abi_ipfs PROC:<{
-    x{697066733a2f2f516d66504c715935797a7163364c537138757464444d534862714d69765868704c544a7333316778725463716a53} PUSHSLICE
+    x{697066733a2f2f516d66485445656b573755784e77754c653232433339507537475071535a3975324b786f6d6b4e39695247513933} PUSHSLICE
   }>
   lazy_deployment_completed PROC:<{
     c4 PUSH
@@ -882,7 +815,7 @@ PROGRAM{
       32 PLDU
     }>
     DUP
-    2905361094 PUSHINT
+    1935855772 PUSHINT
     EQUAL
     IFJMP:<{
       DROP

@@ -1,69 +1,73 @@
-import { toNano, Address, JettonMaster } from "ton";
-import { ContractSystem } from "@tact-lang/emulator";
+import { toNano, Address, JettonMaster, TonClient, beginCell, TonClient4 } from "ton";
+import {
+    Blockchain,
+    SandboxContract,
+    TreasuryContract,
+    printTransactionFees,
+    prettyLogTransactions,
+    RemoteBlockchainStorage,
+    wrapTonClient4ForRemote,
+} from "@ton-community/sandbox";
+import "@ton-community/test-utils";
+import { getHttpEndpoint } from "@orbs-network/ton-access";
+// import { ContractSystem } from "@tact-lang/emulator";
 
+// ---------------------------------------------------------------------------------
 import { StakingContract } from "./output/SampleJetton_StakingContract";
+import { SampleJetton } from "./output/SampleJetton_SampleJetton";
+import exp from "constants";
+// ---------------------------------------------------------------------------------
+
+// const endpoint = await getHttpEndpoint();
+// const client = new TonClient({ endpoint });
 
 describe("==== contract Testing ====", () => {
-    it("should deploy correctly", async () => {
-        // Create ContractSystem and deploy contract
-        let system = await ContractSystem.create();
-        let owner = system.treasure("owner");
-        let nonOwner = system.treasure("non-owner");
+    let blockchain: Blockchain;
+    let deployer: SandboxContract<TreasuryContract>;
+    let nonOwner: SandboxContract<TreasuryContract>;
+    let contract: SandboxContract<StakingContract>;
+    let jettonContract: SandboxContract<SampleJetton>;
 
-        // let jettonMaster = system.open(await JettonMaster())
-        let contract = system.open(await StakingContract.fromInit(nonOwner.address, owner.address, 15000n));
-        console.log("StakingAddress:" + contract.address);
+    // const client4 = new TonClient4({
+    //     endpoint: "https://sandbox-v4.tonhubapi.com",
+    // });
+    // let cc = client4.open(jettonMaster);
 
-        system.update({ now: 1000 });
-        await contract.send(owner, { value: toNano(1) }, null);
+    beforeAll(async () => {
+        blockchain = await Blockchain.create();
+        deployer = await blockchain.treasury("deployer");
 
-        system.name(contract.address, "main");
-        let track = system.track(contract);
-        await system.run();
+        // Setting the Jetton Token Root //
+        jettonContract = await blockchain.openContract(
+            await SampleJetton.fromInit(deployer.address, beginCell().endCell(), 200n)
+        );
+        const jettonMaster = JettonMaster.create(jettonContract.address);
+        // ------------------------------------------------------------
 
-        // let jetton_client = system.open(await new JettonMaster(nonOwner.address));
-        // let stakingContract_jettonWallet = await jetton_client.getWalletAddress(contract.address);
-        // console.log("StakingContract's JettonWallet:: " + stakingContract_jettonWallet);
+        contract = blockchain.openContract(await StakingContract.fromInit(deployer.address, 200n));
+        console.log("StakingAddress: " + contract.address);
 
-        // await contract.send(
-        //     owner,
-        //     { value: toNano(1) },
-        //     { $$type: "AddingJettonAddress", this_contract_jettonWallet: stakingContract_jettonWallet }
-        // );
+        const jettonDeployResult = await jettonContract.send(deployer.getSender(), { value: toNano(1) }, "Mint: 100");
+        expect(jettonDeployResult.transactions).toHaveTransaction({
+            from: deployer.address,
+            to: jettonContract.address,
+            deploy: true,
+            success: true,
+        });
 
-        await system.run();
-        expect(track.collect()).toMatchInlineSnapshot(`
-            [
-              {
-                "$seq": 0,
-                "events": [
-                  {
-                    "$type": "deploy",
-                  },
-                  {
-                    "$type": "received",
-                    "message": {
-                      "body": {
-                        "type": "empty",
-                      },
-                      "bounce": true,
-                      "from": "@treasure(owner)",
-                      "to": "@main",
-                      "type": "internal",
-                      "value": "1",
-                    },
-                  },
-                  {
-                    "$type": "processed",
-                    "gasUsed": 5963n,
-                  },
-                ],
-              },
-            ]
-        `);
+        let stakingContract_jettonWallet = await jettonContract.getGetWalletAddress(contract.address);
+        console.log("StakingAddress's JettonWallet: " + stakingContract_jettonWallet);
+    });
 
-        // await contract.send(nonOwner, { value: toNano(1) }, "increment");
-        // await system.run();
-        // expect(track.collect()).toMatchInlineSnapshot();
+    it("Test", async () => {
+        let contractAddress = await contract.address;
+        expect(contractAddress).toBeDefined();
+
+        let jettonContractAddr = await jettonContract.address;
+        expect(jettonContractAddr).toBeDefined();
+    });
+
+    it("Create The Jetton Deposit", async () => {
+        //
     });
 });

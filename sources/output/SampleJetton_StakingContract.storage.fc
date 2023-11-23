@@ -113,48 +113,6 @@ tuple $StakeRecord$_load_opt(cell cl) inline {
 }
 
 ;;
-;; Type: TokenTransfer
-;; Header: 0xe54bcffe
-;; TLB: token_transfer#e54bcffe queryId:uint64 amount:coins destination:address response_destination:address custom_payload:Maybe ^cell forward_ton_amount:coins forward_payload:remainder<slice> = TokenTransfer
-;;
-
-builder $TokenTransfer$_store(builder build_0, (int, int, slice, slice, cell, int, slice) v) inline_ref {
-    var (v'queryId, v'amount, v'destination, v'response_destination, v'custom_payload, v'forward_ton_amount, v'forward_payload) = v;
-    build_0 = store_uint(build_0, 3846950910, 32);
-    build_0 = build_0.store_uint(v'queryId, 64);
-    build_0 = build_0.store_coins(v'amount);
-    build_0 = __tact_store_address(build_0, v'destination);
-    build_0 = __tact_store_address(build_0, v'response_destination);
-    build_0 = ~ null?(v'custom_payload) ? build_0.store_int(true, 1).store_ref(v'custom_payload) : build_0.store_int(false, 1);
-    build_0 = build_0.store_coins(v'forward_ton_amount);
-    build_0 = build_0.store_slice(v'forward_payload);
-    return build_0;
-}
-
-cell $TokenTransfer$_store_cell((int, int, slice, slice, cell, int, slice) v) inline {
-    return $TokenTransfer$_store(begin_cell(), v).end_cell();
-}
-
-((int, int, slice, slice, cell, int, slice)) $TokenTransfer$_constructor_queryId_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload(int queryId, int amount, slice destination, slice response_destination, cell custom_payload, int forward_ton_amount, slice forward_payload) inline {
-    return (queryId, amount, destination, response_destination, custom_payload, forward_ton_amount, forward_payload);
-}
-
-;;
-;; Type: TokenNotification
-;; Header: 0xad2c4ac6
-;; TLB: token_notification#ad2c4ac6 queryId:uint64 amount:coins from:address forward_payload:remainder<slice> = TokenNotification
-;;
-
-(slice, ((int, int, slice, slice))) $TokenNotification$_load(slice sc_0) inline {
-    throw_unless(129, sc_0~load_uint(32) == 2905361094);
-    var v'queryId = sc_0~load_uint(64);
-    var v'amount = sc_0~load_coins();
-    var v'from = sc_0~__tact_load_address();
-    var v'forward_payload = sc_0;
-    return (sc_0, (v'queryId, v'amount, v'from, v'forward_payload));
-}
-
-;;
 ;; Type: TransferEvent
 ;; Header: 0x526bed5b
 ;; TLB: transfer_event#526bed5b sender_address:address jetton_amount:coins score:uint128 = TransferEvent
@@ -202,12 +160,54 @@ cell $TransferEvent$_store_cell((slice, int, int) v) inline {
 }
 
 ;;
+;; Type: TokenTransfer
+;; Header: 0x0f8a7ea5
+;; TLB: token_transfer#0f8a7ea5 query_id:uint64 amount:coins destination:address response_destination:address custom_payload:Maybe ^cell forward_ton_amount:coins forward_payload:remainder<slice> = TokenTransfer
+;;
+
+builder $TokenTransfer$_store(builder build_0, (int, int, slice, slice, cell, int, slice) v) inline_ref {
+    var (v'query_id, v'amount, v'destination, v'response_destination, v'custom_payload, v'forward_ton_amount, v'forward_payload) = v;
+    build_0 = store_uint(build_0, 260734629, 32);
+    build_0 = build_0.store_uint(v'query_id, 64);
+    build_0 = build_0.store_coins(v'amount);
+    build_0 = __tact_store_address(build_0, v'destination);
+    build_0 = __tact_store_address(build_0, v'response_destination);
+    build_0 = ~ null?(v'custom_payload) ? build_0.store_int(true, 1).store_ref(v'custom_payload) : build_0.store_int(false, 1);
+    build_0 = build_0.store_coins(v'forward_ton_amount);
+    build_0 = build_0.store_slice(v'forward_payload);
+    return build_0;
+}
+
+cell $TokenTransfer$_store_cell((int, int, slice, slice, cell, int, slice) v) inline {
+    return $TokenTransfer$_store(begin_cell(), v).end_cell();
+}
+
+((int, int, slice, slice, cell, int, slice)) $TokenTransfer$_constructor_query_id_amount_destination_response_destination_custom_payload_forward_ton_amount_forward_payload(int query_id, int amount, slice destination, slice response_destination, cell custom_payload, int forward_ton_amount, slice forward_payload) inline {
+    return (query_id, amount, destination, response_destination, custom_payload, forward_ton_amount, forward_payload);
+}
+
+;;
+;; Type: TokenNotification
+;; Header: 0x7362d09c
+;; TLB: token_notification#7362d09c query_id:uint64 amount:coins from:address forward_payload:remainder<slice> = TokenNotification
+;;
+
+(slice, ((int, int, slice, slice))) $TokenNotification$_load(slice sc_0) inline {
+    throw_unless(129, sc_0~load_uint(32) == 1935855772);
+    var v'query_id = sc_0~load_uint(64);
+    var v'amount = sc_0~load_coins();
+    var v'from = sc_0~__tact_load_address();
+    var v'forward_payload = sc_0;
+    return (sc_0, (v'query_id, v'amount, v'from, v'forward_payload));
+}
+
+;;
 ;; Type: StakingContract
 ;;
 
 builder $StakingContract$_store(builder build_0, (slice, slice, int, cell, cell, int, int, int) v) inline {
     var (v'this_contract_jettonWallet, v'owner, v'index, v'stake_record, v'score_list, v'start_time, v'total_score, v'parameter) = v;
-    build_0 = __tact_store_address(build_0, v'this_contract_jettonWallet);
+    build_0 = __tact_store_address_opt(build_0, v'this_contract_jettonWallet);
     build_0 = __tact_store_address(build_0, v'owner);
     build_0 = build_0.store_uint(v'index, 32);
     build_0 = build_0.store_dict(v'stake_record);
@@ -219,7 +219,7 @@ builder $StakingContract$_store(builder build_0, (slice, slice, int, cell, cell,
 }
 
 (slice, ((slice, slice, int, cell, cell, int, int, int))) $StakingContract$_load(slice sc_0) inline {
-    var v'this_contract_jettonWallet = sc_0~__tact_load_address();
+    var v'this_contract_jettonWallet = sc_0~__tact_load_address_opt();
     var v'owner = sc_0~__tact_load_address();
     var v'index = sc_0~load_uint(32);
     var v'stake_record = sc_0~load_dict();
@@ -230,11 +230,10 @@ builder $StakingContract$_store(builder build_0, (slice, slice, int, cell, cell,
     return (sc_0, (v'this_contract_jettonWallet, v'owner, v'index, v'stake_record, v'score_list, v'start_time, v'total_score, v'parameter));
 }
 
-(slice, ((slice, slice, int))) $StakingContract$init$_load(slice sc_0) inline {
-    var v'this_contract_jettonWallet = sc_0~__tact_load_address();
+(slice, ((slice, int))) $StakingContract$init$_load(slice sc_0) inline {
     var v'_owner = sc_0~__tact_load_address();
-    var v'parameter = sc_0~load_int(257);
-    return (sc_0, (v'this_contract_jettonWallet, v'_owner, v'parameter));
+    var v'_parameter = sc_0~load_int(257);
+    return (sc_0, (v'_owner, v'_parameter));
 }
 
 (slice, slice, int, cell, cell, int, int, int) $StakingContract$_contract_load() impure inline_ref {
@@ -246,9 +245,9 @@ builder $StakingContract$_store(builder build_0, (slice, slice, int, cell, cell,
     } else {
         ;; Allow only workchain deployments
         throw_unless(137, my_address().preload_uint(11) == 1024);
-        (slice this_contract_jettonWallet, slice _owner, int parameter) = $sc~$StakingContract$init$_load();
+        (slice _owner, int _parameter) = $sc~$StakingContract$init$_load();
         $sc.end_parse();
-        return $StakingContract$_contract_init(this_contract_jettonWallet, _owner, parameter);
+        return $StakingContract$_contract_init(_owner, _parameter);
     }
 }
 

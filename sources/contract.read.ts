@@ -7,7 +7,7 @@ import { mnemonicToPrivateKey } from "ton-crypto";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-import { StakingContract } from "./output/SampleJetton_StakingContract";
+import { StakingContract, TransferEvent, loadTransferEvent } from "./output/SampleJetton_StakingContract";
 
 (async () => {
     //create client for testnet sandboxv4 API - alternative endpoint

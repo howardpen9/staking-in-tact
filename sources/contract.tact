@@ -1,4 +1,16 @@
 import "./message.tact";
+import "./jetton.tact";
+
+
+/* ===========================================================================
+Owing to the architectural design of TON, each token owned by an address possesses its unique 
+receiving wallet address. This implies that it is not possible to input 'token contract messages' 
+to be received by the token contract used for fundraising, as it would not make sense.
+
+The correct procedure involves inputting this 'receiving contract' into the specified Jetton 
+token contract to acquire the Wallet Address unique to this Jetton token. Only after obtaining 
+this address can you input the message into the 'target business logic contract'.
+=========================================================================== */
 
 /*  
     1/ Need index since the the depositor might be depositing multiple times.
@@ -6,7 +18,7 @@ import "./message.tact";
 */
 
 contract StakingContract {
-    this_contract_jettonWallet: Address;
+    this_contract_jettonWallet: Address?;
     owner: Address;
     index: Int as uint32 = 0;
     stake_record: map<Int, StakeRecord>;
@@ -20,13 +32,12 @@ contract StakingContract {
     // get fun get_jetton_root(): Address{}
     // InitOf vs Address: Which one has lowest storage cost? 
 
-    init(this_contract_jettonWallet: Address, _owner: Address, parameter: Int){
-        self.this_contract_jettonWallet = this_contract_jettonWallet;
+    init(_owner: Address, _parameter: Int){
+        // self.this_contract_jettonWallet = this_contract_jettonWallet;
         self.owner = _owner;
-        self.parameter = parameter;
+        self.parameter = _parameter;
         self.start_time = now();
     }
-
 
     // The notification for the Jetton Token contract noification(when current address receive the token will get the notification)
     receive(stake: TokenNotification){
@@ -62,17 +73,6 @@ contract StakingContract {
         emit(TransferEvent{sender_address: stake.from, jetton_amount: stake.amount, score: score}.toCell());
     }
 
-    // get fun get_ratio_of_stake(StakeTokenAmount: Int): Int {
-    //     return self.score_function(StakeTokenAmount) * pow(10, 9) / self.total_score;
-    // }
-    // get fun get_ratio_of_stake_2(StakeTokenAmount: Int): Int {
-    //     return self.score_function(StakeTokenAmount) * pow(10, 6) / self.total_score;
-    // }
-    // get fun get_ratio_of_stake_3(StakeTokenAmount: Int): Int {
-    //     return self.score_function(StakeTokenAmount) * 100 / self.total_score / 100;
-    // }
-
-
     // To get the ratio of a user in a on-chain ways
     receive(msg: GetWeighted){
         let ctx: Context = context();
@@ -94,7 +94,6 @@ contract StakingContract {
     // receive(msg: AdminExecute) {}
 
     receive(msg: Unstake){
-
         let weight: Int = self.score_list.get(context().sender)!!;
         require(weight > 0, "not in the list"); // TODO: only checking point
 
@@ -104,12 +103,12 @@ contract StakingContract {
         require(stake_record.jettonStakeAmount > 0, "don't have value");
         self.stake_record.set(msg.index_id, null);
         send(SendParameters{
-                to: self.this_contract_jettonWallet,
+                to: self.this_contract_jettonWallet!!,
                 value: 0,
                 mode: (SendRemainingValue + SendIgnoreErrors),
                 bounce: false, // 0x7362d09c - notify new owner
                 body: TokenTransfer{
-                    queryId: 0,
+                    query_id: 0,
                     amount: stake_record.jettonStakeAmount,
                     destination: context().sender,
                     response_destination: myAddress(),
@@ -146,19 +145,19 @@ contract StakingContract {
         return
             StakingData{
                 index: self.index,
-                this_contract_jettonWallet: self.this_contract_jettonWallet,
+                this_contract_jettonWallet: self.this_contract_jettonWallet!!,
                 total_score: self.total_score,
                 parameter: self.parameter
             };
     }
+
+     // get fun get_ratio_of_stake(StakeTokenAmount: Int): Int {
+    //     return self.score_function(StakeTokenAmount) * pow(10, 9) / self.total_score;
+    // }
+    // get fun get_ratio_of_stake_2(StakeTokenAmount: Int): Int {
+    //     return self.score_function(StakeTokenAmount) * pow(10, 6) / self.total_score;
+    // }
+    // get fun get_ratio_of_stake_3(StakeTokenAmount: Int): Int {
+    //     return self.score_function(StakeTokenAmount) * 100 / self.total_score / 100;
+    // }
 }
-
-/* ===========================================================================
-Owing to the architectural design of TON, each token owned by an address possesses its unique 
-receiving wallet address. This implies that it is not possible to input 'token contract messages' 
-to be received by the token contract used for fundraising, as it would not make sense.
-
-The correct procedure involves inputting this 'receiving contract' into the specified Jetton 
-token contract to acquire the Wallet Address unique to this Jetton token. Only after obtaining 
-this address can you input the message into the 'target business logic contract'.
-=========================================================================== */

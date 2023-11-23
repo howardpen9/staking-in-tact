@@ -1,6 +1,6 @@
 # TACT Compilation Report
-Contract: StakingContract
-BOC Size: 1849 bytes
+Contract: JettonDefaultWallet
+BOC Size: 2311 bytes
 
 # Types
 Total Types: 25
@@ -106,13 +106,12 @@ TLB: `change_owner_ok#327b2b4a queryId:uint64 newOwner:address = ChangeOwnerOk`
 Signature: `ChangeOwnerOk{queryId:uint64,newOwner:address}`
 
 # Get Methods
-Total Get Methods: 3
+Total Get Methods: 2
 
-## get_user_stake_record
+## msg_value
+Argument: value
 
-## get_user_stake_amount
-
-## get_return_staking_data
+## get_wallet_data
 
 # Error Codes
 2: Stack undeflow
